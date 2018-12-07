@@ -1,3 +1,3 @@
-# Tiny-Store mongo
+# Tiny-Store MSSQL
 
-mongodb/mongoose implementaion of `Store<T>`
+mssql/tedious implementaion of `Store<T>`
