@@ -2,6 +2,7 @@
 
 NodeJs's various implementations of
 
+    /* Where T is Pojo */
     interface Store<T> {
         add(id: string, data: T): Promise<any>,
         update(id: string, data: Partial<T>): Promise<any>,
@@ -10,6 +11,7 @@ NodeJs's various implementations of
         remove(id: string): Promise<any>,
         clear(): Promise<any>,
     }
+
 
 - Find minimum common denominator between databases
 - For easy environment switching
