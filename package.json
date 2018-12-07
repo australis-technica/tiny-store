@@ -1,0 +1,13 @@
+{
+  "name": "@australis/tiny-store",
+  "private": true,
+  "version": "0.1.0-1",
+  "main": "index.js",
+  "license": "MIT",
+  "workspaces": [
+    "packages/tiny-store-asyncmap",
+    "packages/tiny-store-mssql",
+    "packages/tiny-store-mongo",
+    "packages/tiny-store-level"  
+  ]
+}

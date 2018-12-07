@@ -1,0 +1,29 @@
+{
+  "name": "@australis/tiny-store-mssql",
+  "version": "0.1.0-2",
+  "description": "tiny-store mssql/tedious implementaion",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "test": "jest --env=node --ci",
+    "build": "rimraf lib && tsc -p ."
+  },
+  "dependencies": {
+    "@australis/tiny-sql-simple-repo": "^1.0.0-22"
+  },
+  "devDependencies": {
+    "@types/jest": "^23.3.9",
+    "@types/tedious": "^2.6.1",
+    "jest": "23.6.0",
+    "rimraf": "^2.6.2",
+    "ts-jest": "23.10.4",
+    "ts-node": "^7.0.1",
+    "typescript": "3.2.1"
+  },
+  "files": [
+    "lib/**/*",
+    "readme.md"
+  ]
+}
