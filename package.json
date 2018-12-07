@@ -4,6 +4,7 @@
   "version": "0.1.0-1",
   "main": "index.js",
   "license": "MIT",
+  "author": "D10221",
   "workspaces": [
     "packages/tiny-store-asyncmap",
     "packages/tiny-store-mssql",
