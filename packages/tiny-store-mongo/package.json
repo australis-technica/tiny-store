@@ -1,6 +1,6 @@
 {
   "name": "@australis/tiny-store-mongo",
-  "version": "0.1.0-2",
+  "version": "0.1.0-1",
   "description": "tiny-store mongo-db implementaion",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

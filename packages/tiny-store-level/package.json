@@ -1,7 +1,7 @@
 {
   "name": "@australis/tiny-store-level",
-  "version": "0.1.0-2",
-  "description": "tiny-store level-db implementaion",
+  "version": "0.1.0-1",
+  "description": "tiny-store level-db implementaion of Store<T>",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "license": "MIT",
