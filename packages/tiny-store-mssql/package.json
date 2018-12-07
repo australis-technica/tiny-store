@@ -11,7 +11,7 @@
     "build": "rimraf lib && tsc -p ."
   },
   "dependencies": {
-    "@australis/tiny-sql-simple-repo": "^1.0.0-22"
+    "@australis/tiny-sql-simple-repo": "1.0.0-22"
   },
   "devDependencies": {
     "@types/jest": "^23.3.9",

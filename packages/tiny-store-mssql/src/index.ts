@@ -1,6 +1,8 @@
 import { connected } from "@australis/tiny-sql-simple-repo";
-
-export default (name: string, script: string, envKey = "DB") => {
+/**
+ * @param envKey envKey holding the DB connection String
+ */
+export default (name: string, script: string|(string[]), envKey = "DB") => {
   const repo = connected(name, script, envKey);
   return {
     findOne(id: string) {
