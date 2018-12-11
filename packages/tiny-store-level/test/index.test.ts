@@ -8,28 +8,26 @@ import { SchemaError } from "../src/schema-error";
 import { Store } from "../src/types";
 import mapOut from "../src/map-out";
 import { KeyError } from "../src/create-store";
-
+/** */
 interface Thing extends Object {
   name: string;
 }
-
+// ...
 const jsonDbPath = path.resolve(process.cwd(), "json-test-store.json");
-
 let memDB: any;
 let memStore: Store<Thing>;
-
 if (existsSync(jsonDbPath)) {
   unlinkSync(jsonDbPath);
 }
 let jsonDB: any = JsonDb(jsonDbPath);
 let leveldb: any;
 const leveldbpath = "./testdb";
-
+/** */
 beforeAll(() => {
   rimraf.sync(leveldbpath);
   leveldb = LevelDB(leveldbpath);
 });
-
+/** */
 beforeEach(async () => {
   if (memDB) {
     await memDB.close();
@@ -38,14 +36,15 @@ beforeEach(async () => {
   memDB = MemDb()
   memStore = await levelStore<Thing>(memDB, "things");
 });
-
+/** */
 it("finds many", async () => {
   expect(await memStore.findMany()).toMatchObject([]);
 });
+/** */
 it("throws not found", async () => {
   expect(await memStore.findOne("a").catch(error => error)).toBeInstanceOf(KeyError)
 });
-
+/** */
 it("adds new, etc ...", async () => {
   await memStore.clear();
   expect(await memStore.add("a", { name: "aaa" })).toBe(undefined);
@@ -56,7 +55,7 @@ it("adds new, etc ...", async () => {
   expect(await memStore.remove("a")).toBe(undefined);
   expect(await memStore.findOne("a").catch(e => e)).toBeInstanceOf(KeyError);
 });
-
+/** */
 it("more stores", async () => {
   const store2 = await levelStore(memDB, "moreThings");
   expect(await memStore.add("a", { name: "aaa" })).toBe(undefined);
@@ -64,14 +63,14 @@ it("more stores", async () => {
   expect(await memStore.add("a1", { name: "aaa1" })).toBe(undefined);
   expect(await store2.add("a1", { name: "aaa1" })).toBe(undefined);
 });
-
-//
+/** */
 it("maps out", async () => {
   const bt = mapOut(memStore, x => ({ ...x[1], id: x[0] }));
   await bt.add("x", { name: "x" });
   const x = await bt.findOne("x");
   expect(x.id).toBe("x");
 });
+/** */
 it("persisted/json-db", async () => {
   const store = (await levelStore(jsonDB, "moreThings2"));
   const value = { name: "aaa" };
@@ -82,6 +81,7 @@ it("persisted/json-db", async () => {
   expect(dbFile["moreThings/a"]).toBe(undefined);
   expect(dbFile["moreThings2/a"]).toBe(JSON.stringify(value));
 })
+/** */
 it("validates: 1000/jsons", async () => {
   // 1089ms with memdown
   // jest.setTimeout(60000);
@@ -101,6 +101,7 @@ it("validates: 1000/jsons", async () => {
 
   expect(await s.add("xxxx", { name: "x0" }).catch(error => error)).toBeInstanceOf(SchemaError);
 });
+/** */
 it("10000's", async () => {
   // 1089ms with memdown
   // 1575ms with leveldown
@@ -122,6 +123,7 @@ it("10000's", async () => {
   expect((await store.findMany()).length).toBe(10001);
   console.timeEnd("find:x10000");
 });
+/** */
 it("rejects dup id", async () => {
   const store = await levelStore<{}>(leveldb, "things3");
   const id = randomString();
@@ -129,10 +131,12 @@ it("rejects dup id", async () => {
   const x = await (store.add(id, {}).catch(e => e));
   expect(x).toBeInstanceOf(KeyError);
 })
+/** */
 it("rejects bad id", async () => {
   const store = await levelStore<{}>(leveldb, "things3");
   expect(await store.add("_%$#@", {}).catch(x => x)).toBeInstanceOf(KeyError);
 })
+/** */
 it("Schema rejects not in schema", async () => {
   const store = await levelStore<Thing>(jsonDB, "things4", [
     { key: "name", notNull: true, unique: true },
@@ -140,6 +144,7 @@ it("Schema rejects not in schema", async () => {
   const x = await store.add("a", { x: "aaa" } as any).catch(e => e);
   expect(x).toBeInstanceOf(SchemaError)
 })
+/** */
 it("Schema rejects bad type", async () => {
   const store = await levelStore<Thing>(jsonDB, "things5", [
     { key: "name", notNull: true, unique: true, type: "string" },
@@ -149,6 +154,7 @@ it("Schema rejects bad type", async () => {
     .toBeInstanceOf(SchemaError);
 })
 const randomString = () => randomBytes(16).toString("hex");
+/** */
 it("Schema rejects bad types", async () => {
   const store = await levelStore<Thing>(jsonDB, "things6", [
     { key: "name", notNull: true, unique: true, type: ["string", "number"] },
@@ -158,6 +164,7 @@ it("Schema rejects bad types", async () => {
   await store.add(randomString(), { name: 1 as any });
   await store.add(randomString(), { name: "1" as any });
 })
+/** */
 it("defaults values", async () => {
   const newName = randomString();
   const store = await levelStore<{ name: string, createdAt?: string | number | Date | undefined }>(jsonDB, "things7", [
@@ -170,7 +177,7 @@ it("defaults values", async () => {
   expect(found.name).toBe(newName);
   expect(toDate(found.createdAt).getDate()).toBe(new Date().getDate());
 })
-
+/** */
 it("updates same value", async () => {
   const store = await levelStore<{ name: string, createdAt?: string | number | Date | undefined }>(jsonDB, "things9", [
     { key: "name", notNull: true, unique: true, type: "string" },
@@ -184,6 +191,7 @@ it("updates same value", async () => {
     expect((await store.findOne(id)).name).toBe(newName);
   }
 })
+/** */
 it("updates other value", async () => {
   type X = { name: string, createdAt?: string | number | Date | undefined };
   const store = await levelStore<X>(jsonDB, "things10", [
@@ -199,7 +207,7 @@ it("updates other value", async () => {
     expect((await store.findOne(id)).name).toBe(newName);
   }
 })
-
+/** */
 it("updates not dup name", async () => {
   type X = { name: string, createdAt?: string | number | Date | undefined };
   const store = await levelStore<X>(jsonDB, "things11", [
@@ -215,7 +223,7 @@ it("updates not dup name", async () => {
     expect((await store.update(id1, { name: name2 }).catch(e => e))).toBeInstanceOf(SchemaError);
   }
 })
-
+/** */
 it("updates checking type", async () => {
   const store = await levelStore<{ name: string, createdAt?: string | number | Date | undefined }>(jsonDB, "things12", [
     { key: "name", notNull: true, unique: true, type: "string" }
@@ -224,7 +232,7 @@ it("updates checking type", async () => {
   await store.add(id, { name: randomString() });
   expect(await store.update(id, { name: randomBytes(8) as any }).catch(e => e)).toBeInstanceOf(SchemaError);
 })
-
+/** */
 it("deletes and clears indexes", async () => {
   const store = await levelStore<{ name: string }>(jsonDB, "things13", [
     { key: "name", notNull: true, unique: true, type: "string" }
@@ -236,7 +244,7 @@ it("deletes and clears indexes", async () => {
   expect(await store.findOne(id).catch(e => e)).toBeInstanceOf(KeyError);
   expect(await store.add(id, { name: aName })).toBe(undefined);
 })
-
+/** */
 it("updates with NO schema , accepts all props, returns original + update", async () => {
   type X = {};
   const store = await levelStore<X>(leveldb, "things12", []);
