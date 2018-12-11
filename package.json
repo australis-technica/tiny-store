@@ -1,7 +1,7 @@
 {
   "name": "@australis/tiny-store",
   "private": true,
-  "version": "0.1.0-2",
+  "version": "0.1.0-3",
   "main": "index.js",
   "license": "MIT",
   "author": "D10221",
