@@ -70,7 +70,9 @@ export default async <T extends { [key: string]: any } = {}>(
     });
 
   const findOne = (id: string): Promise<T> =>
-    db.get(encode(id)).then((value: any) => value);
+    db.get(encode(id)).then((value: any) => {
+      return value;
+    });
 
   const findMany = () =>
     new Promise<StoreRecord<T>[]>((resolve, reject) => {
@@ -168,24 +170,25 @@ export default async <T extends { [key: string]: any } = {}>(
         .then(addPrimaryKey(id));
     },
     /** */
-    update: async (id: string, data: Partial<T>) => {
+    update: async (id: string, data: Partial<T>) => {      
       try {
         const found = await findOne(id).catch(catchNotFound(null));
         if (!found) return Promise.reject(new Error(`Not Found key: ${id}`));
-        data = _schema.validate(
+        const validated = _schema.validate(
           data as T, // hack:
           indexes,
-          /* ignore*/ found,
+          /* ignore: */ found,
+        );
+        const _update = Object.assign(found, validated);
+        return (
+          db
+            .put(encode(id), _update)
+            // problem: uniques values are append only ?
+            .then(reindex())
         );
       } catch (error) {
         return Promise.reject(error);
       }
-      return (
-        db
-          .put(encode(id), data)
-          // problem: uniques values are append only ?
-          .then(reindex())
-      );
     },
     findMany,
     findOne: (id: string) => findOne(id).catch(e =>

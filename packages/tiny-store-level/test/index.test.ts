@@ -24,10 +24,12 @@ if (existsSync(jsonDbPath)) {
 let jsonDB: any = JsonDb(jsonDbPath);
 let leveldb: any;
 const leveldbpath = "./testdb";
+
 beforeAll(() => {
   rimraf.sync(leveldbpath);
   leveldb = LevelDB(leveldbpath);
 });
+
 beforeEach(async () => {
   if (memDB) {
     await memDB.close();
@@ -36,12 +38,14 @@ beforeEach(async () => {
   memDB = MemDb()
   memStore = await levelStore<Thing>(memDB, "things");
 });
+
 it("finds many", async () => {
   expect(await memStore.findMany()).toMatchObject([]);
 });
 it("throws not found", async () => {
   expect(await memStore.findOne("a").catch(error => error)).toBeInstanceOf(KeyError)
 });
+
 it("adds new, etc ...", async () => {
   await memStore.clear();
   expect(await memStore.add("a", { name: "aaa" })).toBe(undefined);
@@ -52,6 +56,7 @@ it("adds new, etc ...", async () => {
   expect(await memStore.remove("a")).toBe(undefined);
   expect(await memStore.findOne("a").catch(e => e)).toBeInstanceOf(KeyError);
 });
+
 it("more stores", async () => {
   const store2 = await levelStore(memDB, "moreThings");
   expect(await memStore.add("a", { name: "aaa" })).toBe(undefined);
@@ -180,7 +185,8 @@ it("updates same value", async () => {
   }
 })
 it("updates other value", async () => {
-  const store = await levelStore<{ name: string, createdAt?: string | number | Date | undefined }>(jsonDB, "things10", [
+  type X = { name: string, createdAt?: string | number | Date | undefined };
+  const store = await levelStore<X>(jsonDB, "things10", [
     { key: "name", notNull: true, unique: true, type: "string" },
     { key: "createdAt", default: () => new Date() },
   ]);
@@ -195,7 +201,8 @@ it("updates other value", async () => {
 })
 
 it("updates not dup name", async () => {
-  const store = await levelStore<{ name: string, createdAt?: string | number | Date | undefined }>(jsonDB, "things11", [
+  type X = { name: string, createdAt?: string | number | Date | undefined };
+  const store = await levelStore<X>(jsonDB, "things11", [
     { key: "name", notNull: true, unique: true, type: "string" },
     { key: "createdAt", default: () => new Date() },
   ]);
@@ -228,4 +235,17 @@ it("deletes and clears indexes", async () => {
   await store.remove(id);
   expect(await store.findOne(id).catch(e => e)).toBeInstanceOf(KeyError);
   expect(await store.add(id, { name: aName })).toBe(undefined);
+})
+
+it("updates with NO schema , accepts all props, returns original + update", async () => {
+  type X = {};
+  const store = await levelStore<X>(leveldb, "things12", []);
+  const id = randomString();
+  const y = "y";
+  const xName = randomString();
+  await store.add(id, { xName, y });
+  const newName = randomBytes(8).toString();
+  await store.update(id, { name: newName });
+  const x = await store.findOne(id);
+  expect(x).toMatchObject({ name: newName, y })
 })
