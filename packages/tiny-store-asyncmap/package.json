@@ -1,6 +1,6 @@
 {
   "name": "@australis/tiny-store-asyncmap",
-  "version": "0.1.0-3",
+  "version": "0.1.0-4",
   "description": "js/Map implementaion of Store<T>",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

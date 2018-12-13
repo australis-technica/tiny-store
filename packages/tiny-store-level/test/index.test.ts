@@ -34,7 +34,7 @@ beforeEach(async () => {
     memDB = null;
   }
   memDB = MemDb()
-  memStore = await levelStore<Thing>(memDB, "things");
+  memStore = levelStore<Thing>(memDB, "things");
 });
 /** */
 it("finds many", async () => {
@@ -57,7 +57,7 @@ it("adds new, etc ...", async () => {
 });
 /** */
 it("more stores", async () => {
-  const store2 = await levelStore(memDB, "moreThings");
+  const store2 = levelStore(memDB, "moreThings");
   expect(await memStore.add("a", { name: "aaa" })).toBe(undefined);
   expect(await store2.add("a", { name: "aaa" })).toBe(undefined);
   expect(await memStore.add("a1", { name: "aaa1" })).toBe(undefined);
@@ -72,7 +72,7 @@ it("maps out", async () => {
 });
 /** */
 it("persisted/json-db", async () => {
-  const store = (await levelStore(jsonDB, "moreThings2"));
+  const store = (levelStore(jsonDB, "moreThings2"));
   const value = { name: "aaa" };
   expect(await store.add("a", value)).toBe(undefined);
   // await jsonDB.close();  
@@ -85,7 +85,7 @@ it("persisted/json-db", async () => {
 it("validates: 1000/jsons", async () => {
   // 1089ms with memdown
   // jest.setTimeout(60000);
-  const s = await levelStore<Thing>(jsonDB, "things2", [
+  const s = levelStore<Thing>(jsonDB, "things2", [
     { key: "name", notNull: true, unique: true },
   ]);
   // 10000 records with 40.202s with jsonDown
@@ -107,7 +107,7 @@ it("10000's", async () => {
   // 1575ms with leveldown
   // 40s with jsondown
   // jest.setTimeout(60000);
-  const store = await levelStore<Thing>(leveldb, "things3");
+  const store = levelStore<Thing>(leveldb, "things3");
   console.time("add:1");
   await store.add("1", { name: "1" });
   console.timeEnd("add:1");
@@ -125,7 +125,7 @@ it("10000's", async () => {
 });
 /** */
 it("rejects dup id", async () => {
-  const store = await levelStore<{}>(leveldb, "things3");
+  const store = levelStore<{}>(leveldb, "things3");
   const id = randomString();
   await store.add(id, {});
   const x = await (store.add(id, {}).catch(e => e));
@@ -133,12 +133,12 @@ it("rejects dup id", async () => {
 })
 /** */
 it("rejects bad id", async () => {
-  const store = await levelStore<{}>(leveldb, "things3");
+  const store = levelStore<{}>(leveldb, "things3");
   expect(await store.add("_%$#@", {}).catch(x => x)).toBeInstanceOf(KeyError);
 })
 /** */
 it("Schema rejects not in schema", async () => {
-  const store = await levelStore<Thing>(jsonDB, "things4", [
+  const store = levelStore<Thing>(jsonDB, "things4", [
     { key: "name", notNull: true, unique: true },
   ]);
   const x = await store.add("a", { x: "aaa" } as any).catch(e => e);
@@ -146,7 +146,7 @@ it("Schema rejects not in schema", async () => {
 })
 /** */
 it("Schema rejects bad type", async () => {
-  const store = await levelStore<Thing>(jsonDB, "things5", [
+  const store = levelStore<Thing>(jsonDB, "things5", [
     { key: "name", notNull: true, unique: true, type: "string" },
   ]);
   const e = await store.add("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", { name: 1 as any }).catch(e => e);
@@ -156,7 +156,7 @@ it("Schema rejects bad type", async () => {
 const randomString = () => randomBytes(16).toString("hex");
 /** */
 it("Schema rejects bad types", async () => {
-  const store = await levelStore<Thing>(jsonDB, "things6", [
+  const store = levelStore<Thing>(jsonDB, "things6", [
     { key: "name", notNull: true, unique: true, type: ["string", "number"] },
   ]);
   expect(await store.add(randomBytes(16).toString("hex"), { name: true as any }).catch(e => e))
@@ -167,7 +167,7 @@ it("Schema rejects bad types", async () => {
 /** */
 it("defaults values", async () => {
   const newName = randomString();
-  const store = await levelStore<{ name: string, createdAt?: string | number | Date | undefined }>(jsonDB, "things7", [
+  const store = levelStore<{ name: string, createdAt?: string | number | Date | undefined }>(jsonDB, "things7", [
     { key: "name", notNull: true, unique: true, type: "string", default: () => newName },
     { key: "createdAt", default: () => new Date() },
   ]);
@@ -179,7 +179,7 @@ it("defaults values", async () => {
 })
 /** */
 it("updates same value", async () => {
-  const store = await levelStore<{ name: string, createdAt?: string | number | Date | undefined }>(jsonDB, "things9", [
+  const store = levelStore<{ name: string, createdAt?: string | number | Date | undefined }>(jsonDB, "things9", [
     { key: "name", notNull: true, unique: true, type: "string" },
     { key: "createdAt", default: () => new Date() },
   ]);
@@ -194,7 +194,7 @@ it("updates same value", async () => {
 /** */
 it("updates other value", async () => {
   type X = { name: string, createdAt?: string | number | Date | undefined };
-  const store = await levelStore<X>(jsonDB, "things10", [
+  const store = levelStore<X>(jsonDB, "things10", [
     { key: "name", notNull: true, unique: true, type: "string" },
     { key: "createdAt", default: () => new Date() },
   ]);
@@ -210,7 +210,7 @@ it("updates other value", async () => {
 /** */
 it("updates not dup name", async () => {
   type X = { name: string, createdAt?: string | number | Date | undefined };
-  const store = await levelStore<X>(jsonDB, "things11", [
+  const store = levelStore<X>(jsonDB, "things11", [
     { key: "name", notNull: true, unique: true, type: "string" },
     { key: "createdAt", default: () => new Date() },
   ]);
@@ -225,7 +225,7 @@ it("updates not dup name", async () => {
 })
 /** */
 it("updates checking type", async () => {
-  const store = await levelStore<{ name: string, createdAt?: string | number | Date | undefined }>(jsonDB, "things12", [
+  const store = levelStore<{ name: string, createdAt?: string | number | Date | undefined }>(jsonDB, "things12", [
     { key: "name", notNull: true, unique: true, type: "string" }
   ]);
   const id = randomString();
@@ -234,7 +234,7 @@ it("updates checking type", async () => {
 })
 /** */
 it("deletes and clears indexes", async () => {
-  const store = await levelStore<{ name: string }>(jsonDB, "things13", [
+  const store = levelStore<{ name: string }>(jsonDB, "things13", [
     { key: "name", notNull: true, unique: true, type: "string" }
   ]);
   const id = randomString();
@@ -247,7 +247,7 @@ it("deletes and clears indexes", async () => {
 /** */
 it("updates with NO schema , accepts all props, returns original + update", async () => {
   type X = {};
-  const store = await levelStore<X>(leveldb, "things12", []);
+  const store = levelStore<X>(leveldb, "things12", []);
   const id = randomString();
   const y = "y";
   const xName = randomString();

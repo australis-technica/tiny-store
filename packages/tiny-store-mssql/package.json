@@ -1,6 +1,6 @@
 {
   "name": "@australis/tiny-store-mssql",
-  "version": "0.1.0-3",
+  "version": "0.1.0-4",
   "description": "mssql/tedious implementaion of Store<T>",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
